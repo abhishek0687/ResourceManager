@@ -12,37 +12,18 @@ exports.addWaterLevel = function(req,resp,reqBody){
 	var ISThrs = ('0'+ dt.getHours()).slice(-2);
 	var ISTmin = ('0'+ dt.getMinutes()).slice(-2);
 	var ISTsec = ('0'+ dt.getSeconds()).slice(-2);
-	//var dateFormat = ISTdate+"-"+ISTmonth+"-"+ISTyear+" "+ISThrs+":"+ISTmin+":"+ISTsec;
-	var dateFormat = ISTyear+"-"+ISTmonth+"-"+ISTdate+" "+ISThrs+":"+ISTmin+":"+ISTsec;
+	var dateFormat = ISTdate+"-"+ISTmonth+"-"+ISTyear+" "+ISThrs+":"+ISTmin+":"+ISTsec;
 	console.log("req",reqBody);
 	reqBody.date= dateFormat;
 	console.log(reqBody);
-	var con={"deviceId":reqBody.deviceId};
-	console.log("filter ",con);
-	db.dbs.collection("water").find(con,{fields: { _id: 0,date:1}}).sort({"date":-1}).skip(100).limit(1).toArray(function(err,data){
-		console.log(data);
-		var deldate
-		if(data.length >0)
-		{
-			deldate = data[0].date;	
-			console.log("sort data ",deldate);
+	
+	db.dbs.collection("water").insert(reqBody,function(err,result){
+		if(err){
+			httpMsgs.show500(req,resp,err);
+		}						
+		else{
+			httpMsgs.send200(req,resp);
 		}
-		else
-		{
-			deldate="";
-		}
-		db.dbs.collection("water").remove({date:{$lt:deldate}},function(err,d){
-			console.log("error in remove",err);
-			//console.log("date in remove",d);
-			db.dbs.collection("water").insert(reqBody,function(err,result){
-				if(err){
-					httpMsgs.show500(req,resp,err);
-				}						
-				else{
-					httpMsgs.send200(req,resp);
-				}
-			});
-		})
 	});
 };
 
@@ -76,38 +57,18 @@ exports.addMotorStatus = function(req,resp,reqBody){
 	var ISThrs = ('0'+ dt.getHours()).slice(-2);
 	var ISTmin = ('0'+ dt.getMinutes()).slice(-2);
 	var ISTsec = ('0'+ dt.getSeconds()).slice(-2);
-	//var dateFormat = ISTdate+"-"+ISTmonth+"-"+ISTyear+" "+ISThrs+":"+ISTmin+":"+ISTsec;
-	var dateFormat = ISTyear+"-"+ISTmonth+"-"+ISTdate+" "+ISThrs+":"+ISTmin+":"+ISTsec;
+	var dateFormat = ISTdate+"-"+ISTmonth+"-"+ISTyear+" "+ISThrs+":"+ISTmin+":"+ISTsec;
 	console.log("req",reqBody);
 	reqBody.date= dateFormat;
 	console.log(reqBody);
-	var con={"deviceId":reqBody.deviceId};
-	console.log("filter ",con);
 	
-	db.dbs.collection("motor").find(con,{fields: { _id: 0,date:1}}).sort({"date":-1}).skip(100).limit(1).toArray(function(err,data){
-		console.log(data);
-		var deldate
-		if(data.length >0)
-		{
-			deldate = data[0].date;	
-			console.log("sort data ",deldate);
+	db.dbs.collection("motor").insert(reqBody,function(err,result){
+		if(err){
+			httpMsgs.show500(req,resp,err);
+		}						
+		else{
+			httpMsgs.send200(req,resp);
 		}
-		else
-		{
-			deldate="";
-		}
-		db.dbs.collection("motor").remove({date:{$lt:deldate}},function(err,d){
-			console.log("error in remove",err);
-			//console.log("date in remove",d);
-			db.dbs.collection("motor").insert(reqBody,function(err,result){
-				if(err){
-					httpMsgs.show500(req,resp,err);
-				}						
-				else{
-					httpMsgs.send200(req,resp);
-				}
-			});
-		})
 	});
 };
 
@@ -122,18 +83,11 @@ exports.getMotorStatus = function(req,resp,device){
 			httpMsgs.show500(req,resp,err);
 		}						
 		else{
-			if(data.length>0)
-			{
-				console.log(data[0].status);
-				 resp.write(data[0].status);
-			}
-			else
-			{
-				console.log("data is blank");	
-			}
+			console.log(data[0].level);
 			//data.date = data.date.toLocaleString();
 			//console.log(data.date);
 		//	httpMsgs.sendJson(req,resp,data[0]);
+			 resp.write(data[0].level);
 			resp.end();
 		}
 	})
